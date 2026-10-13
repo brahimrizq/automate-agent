@@ -1,4 +1,4 @@
-FROM ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55 AS runtime
+FROM ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55 AS base
 
 # Digest pins the distribution; scheduled rebuilds take security package updates.
 # hadolint ignore=DL3008
@@ -20,14 +20,17 @@ LABEL org.opencontainers.image.source="https://github.com/brahimrizq/automate-ag
     org.opencontainers.image.description="Experimental unofficial wrapper; contains no ConnectWise agent"
 
 # Explicit test-only target: original synthetic fixture, never a release target.
-FROM runtime AS mock-build
+FROM base AS mock-build
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY tests/fixtures/ /fixtures/
 RUN gcc -Wall -Wextra -Werror -O2 /fixtures/mock.c -o /fixtures/ltechagent \
     && python3 /fixtures/make_archive.py
-FROM runtime AS mock
+FROM base AS mock
 COPY --from=mock-build /fixtures/installer.zip /fixtures/installer.zip
 COPY --from=mock-build /fixtures/config /fixtures/config
 ENV INSTALLER_FILE=/fixtures/installer.zip AGENT_CONFIG_FILE=/fixtures/config
+
+# The default build is always the public dependency-only image.
+FROM base AS runtime
