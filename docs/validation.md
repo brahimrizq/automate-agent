@@ -10,7 +10,7 @@ compatibility or production certification.
 | ShellCheck / shfmt / Hadolint | Passed using pinned tool containers. |
 | Compose default and lab configurations | Both validated. |
 | Unit tests | 26 passed, including archive safety, identity locks, malformed metadata and snapshot rollback. |
-| Docker integration tests | 12 passed in 26.640 seconds on the recorded full local run. |
+| Docker integration tests | 13 passed in 29.267 seconds on the corrective local run, including user-owned private-file and backup-directory access. |
 | Crash recovery | Synthetic exit 42 retained; Docker stopped after two configured retries; later restart reused identity. |
 | Network/DNS faults | Internal synthetic endpoint unavailable, available, disconnected and reconnected; identity retained. |
 | Graceful shutdown / unhealthy process | Synthetic SIGTERM completed; SIGSTOP was unhealthy and SIGCONT recovered. |
@@ -22,6 +22,7 @@ compatibility or production certification.
 | Image vulnerabilities | Trivy 0.75.0 found zero HIGH/CRITICAL vulnerabilities in 109 detected Ubuntu packages; unfixed findings were not suppressed. |
 | Actual private ZIP | Static wrapper validation accepted layout and ELF architecture without executing any vendor code. |
 | Private reporting | Enabled and verified via GitHub API. |
+| Private file permissions | Synthetic user-owned mode-0600 file was unreadable with no capabilities and readable with `DAC_OVERRIDE`; the corrective Compose profile adds only that capability. |
 
 Public CI independently repeats checks and publishes an SBOM. See the
 [CI runs](https://github.com/brahimrizq/automate-agent/actions/workflows/ci.yaml)

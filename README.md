@@ -96,7 +96,7 @@ at startup but server-forced updates remain unverified.
 
 ## Published images and verification
 
-Release images use `ghcr.io/brahimrizq/automate-agent:v0.1.0-alpha.1`. Prefer the
+Release images use `ghcr.io/brahimrizq/automate-agent:v0.1.0-alpha.2`. Prefer the
 immutable `@sha256:...` reference recorded in each release. Set `WRAPPER_IMAGE` to
 that reference, run `docker compose pull agent`, then use the same initialization
 and startup commands. Source builds use `automate-agent:local`.

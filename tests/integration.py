@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import time
 import unittest
 import uuid
@@ -50,6 +51,7 @@ class Integration(unittest.TestCase):
         name = self.prefix + "-c" + str(len(self.containers))
         self.containers.append(name)
         docker("run", "-d", "--name", name, "--read-only", "--cap-drop", "ALL",
+               "--cap-add", "DAC_OVERRIDE",
                "--security-opt", "no-new-privileges", "--memory", "512m", "--cpus", "1", "--pids-limit", "256",
                "--tmpfs", "/run/wrapper:rw,nosuid,nodev,noexec,size=8m,mode=0700",
                "--tmpfs", "/tmp:rw,nosuid,nodev,noexec,size=64m",
@@ -166,6 +168,25 @@ class Integration(unittest.TestCase):
                         "--entrypoint", "python3", RUNTIME, "-c",
                         "from pathlib import Path; assert not Path('/check/state').exists(); assert Path('/check/.wrapper.json').exists()")
         self.assertEqual(result, "")
+
+    def test_private_host_secret_and_backup_directory_permissions(self):
+        with tempfile.TemporaryDirectory(prefix="automate-private-fixture-") as directory:
+            root = Path(directory)
+            config = root / "config"
+            config.write_text("server_url https://automate.example.invalid\n"
+                              "system_password synthetic-enrollment\nlocation_id 1\n")
+            config.chmod(0o600)
+            backup = root / "backup"
+            backup.mkdir(mode=0o700)
+            name = self.start(options=("--network", "none", "-e", "AGENT_CONFIG_FILE=/run/mock-config",
+                                       "--mount", f"type=bind,source={config},target=/run/mock-config,readonly"))
+            self.until(lambda: self.healthy(name))
+            docker("stop", "-t", "10", name)
+            saved = self.start(options=("--network", "none", "--mount",
+                                        f"type=bind,source={backup},target=/backup"), command="backup")
+            self.assertEqual(self.wait_exit(saved), 0)
+            self.assertTrue((backup / "snapshot.tar").is_file())
+            self.assertEqual((backup / "snapshot.tar").stat().st_mode & 0o777, 0o600)
 
     def test_network_and_dns_failure_recovery_keep_identity(self):
         network = self.prefix + "-net"
