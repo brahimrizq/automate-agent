@@ -8,6 +8,8 @@ services:
     restart: "on-failure:5"
     read_only: true
     cap_drop: [ALL]
+    # Required for user-owned mode-0600 secret files and mode-0700 backup directories.
+    cap_add: [DAC_OVERRIDE]
     security_opt: [no-new-privileges:true]
     stop_grace_period: 75s
     environment:

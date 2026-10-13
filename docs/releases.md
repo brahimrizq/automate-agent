@@ -26,7 +26,7 @@ Copy the exact digest from the GitHub release and substitute it below:
 
 ```sh
 cosign verify \
-  --certificate-identity 'https://github.com/brahimrizq/automate-agent/.github/workflows/release.yaml@refs/tags/v0.1.0-alpha.1' \
+  --certificate-identity 'https://github.com/brahimrizq/automate-agent/.github/workflows/release.yaml@refs/tags/v0.1.0-alpha.2' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   'ghcr.io/brahimrizq/automate-agent@sha256:REPLACE_WITH_RELEASE_DIGEST'
 

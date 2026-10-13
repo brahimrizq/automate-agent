@@ -1,13 +1,21 @@
 # Host access and limitations
 
 The default requires **no host namespaces, host system mounts, device access,
-extra Linux capabilities, Docker socket, or host service socket**. The only
+Docker socket, or host service socket**. The only
 inputs are two private read-only files and one writable Docker state volume.
 The container root filesystem is read-only; bounded tmpfs mounts support temporary
 files and supervisor health status. Root is retained inside the isolated
-container to match the inspected installer file ownership; all capabilities are
-dropped and privilege escalation is disabled. Root here is not evidence that
-host management works.
+container to match the inspected installer file ownership. All capabilities are
+dropped except `DAC_OVERRIDE`, and privilege escalation is disabled. Root here
+is not evidence that host management works.
+
+`DAC_OVERRIDE` is necessary to read user-owned mode-0600 bind-mounted secret files
+and write to user-owned mode-0700 backup directories. An isolated synthetic test
+failed without it and succeeded with it; the regression test covers both paths.
+It bypasses normal file access checks within the container and its supplied mounts.
+It cannot make the read-only secret mounts writable, and no host system tree is
+mounted. Do not add unrelated host paths. This is tested with rootful Docker;
+rootless/user-namespace-remapped deployments are unverified.
 
 Maintaining a backup temporarily mounts only the operator-selected backup
 directory, writable for backup and read-only for restore. Docker administration
