@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add Makefile targets for development checks, image scans, SBOM generation and
+  guarded prerelease publication with workflow status inspection.
+
 ## 0.1.0-alpha.2 — 2026-10-13
 
 - Fix access to user-owned mode-0600 secret files and mode-0700 backup directories

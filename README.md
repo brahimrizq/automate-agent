@@ -125,9 +125,16 @@ snapshots. See [configuration](docs/configuration.md), [architecture](docs/archi
 
 ## Development and license
 
-Run `scripts/check.sh`; it uses Docker for compilers, linters and unit tests, with
+Run `make help` to list build, test, scan and release actions, or `make check`
+for the complete development checks. The underlying `scripts/check.sh` uses
+Docker for compilers, linters and unit tests, with
 the existing host Python 3 interpreter only orchestrating Docker integration
 tests. No real credentials are needed. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Maintainers can publish with `make release VERSION=v0.1.0-alpha.3` after merging
+the version's changelog and passing main CI. Run `make release-check` with the
+same `VERSION` to check readiness first; `make release-status` reports workflow
+and publication status. See the [release procedure](docs/releases.md#maintainer-commands).
 
 [MIT](LICENSE) covers only original wrapper code, documentation and synthetic
 fixtures. Vendor software is excluded; users must obtain it under their own
