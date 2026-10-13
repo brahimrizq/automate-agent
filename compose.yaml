@@ -1,0 +1,40 @@
+services:
+  agent:
+    image: ${WRAPPER_IMAGE:-automate-agent:local}
+    build:
+      context: .
+      target: runtime
+    platform: linux/amd64
+    restart: "on-failure:5"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 75s
+    environment:
+      ACCEPT_EXPERIMENTAL: ${ACCEPT_EXPERIMENTAL:-}
+      AGENT_INSTANCE_ID: ${AGENT_INSTANCE_ID:-}
+      INSTALLER_SHA256: ${INSTALLER_SHA256:-}
+      SHUTDOWN_SECONDS: "60"
+    secrets:
+      - source: installer
+        target: installer.zip
+      - source: agent_config
+        target: agent_config
+    volumes:
+      - agent-state:/usr/local/ltechagent
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777
+      - /run/wrapper:rw,nosuid,nodev,noexec,size=8m,mode=0700
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+secrets:
+  installer:
+    file: ${INSTALLER_PATH:-/nonexistent/installer.zip}
+  agent_config:
+    file: ${AGENT_CONFIG_PATH:-/nonexistent/agent_config}
+volumes:
+  agent-state:

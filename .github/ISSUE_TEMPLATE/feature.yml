@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a concrete improvement with evidence and constraints.
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem and intended behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence, testing approach and any required host access
+      description: Use synthetic examples; exclude customer or vendor artifacts.
+    validations:
+      required: true

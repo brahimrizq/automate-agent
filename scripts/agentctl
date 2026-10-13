@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+case "${1:-}" in
+  build) docker compose build agent ;;
+  init) docker compose run --rm --no-deps agent init ;;
+  start) docker compose up -d --no-build agent ;;
+  stop) docker compose stop agent ;;
+  status) docker compose exec -T agent python3 /opt/wrapper/healthcheck.py ;;
+  logs) docker compose logs --tail 100 agent ;;
+  backup | restore)
+    if [[ $# != 2 || "$2" != /* || ! -d "$2" ]]; then
+      echo 'Usage: scripts/agentctl backup|restore /absolute/private/existing/directory' >&2
+      exit 64
+    fi
+    docker compose stop agent
+    access=rw
+    if [[ "$1" == restore ]]; then access=ro; fi
+    docker compose run --rm --no-deps --volume "$2:/backup:$access" agent "$1"
+    ;;
+  upgrade)
+    # A backup is mandatory. Never overwrite it during a repeated upgrade attempt.
+    if [[ $# != 2 || "$2" != /* || ! -d "$2" ]]; then
+      echo 'Usage: scripts/agentctl upgrade /absolute/private/new-backup-directory' >&2
+      exit 64
+    fi
+    docker compose stop agent
+    docker compose run --rm --no-deps --volume "$2:/backup:rw" agent backup
+    docker compose run --rm --no-deps agent upgrade
+    echo 'Upgrade staged. Start explicitly with scripts/agentctl start.'
+    ;;
+  *)
+    echo 'Usage: scripts/agentctl build|init|start|stop|status|logs|backup DIR|upgrade DIR|restore DIR' >&2
+    exit 64
+    ;;
+esac

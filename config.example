@@ -1,0 +1,8 @@
+# Copy OUTSIDE the repository; chmod 600. Values are synthetic examples.
+server_url https://automate.example.invalid
+system_password REPLACE_WITH_YOUR_ENROLLMENT_SECRET
+location_id 1
+# These settings are enforced by the wrapper.
+ssl yes
+ssl_verify_cert yes
+auto_update no

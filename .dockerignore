@@ -1,0 +1,9 @@
+**
+!Dockerfile
+!wrapper/
+!wrapper/*.py
+!LICENSE
+!tests/
+!tests/fixtures/
+!tests/fixtures/mock.c
+!tests/fixtures/make_archive.py
